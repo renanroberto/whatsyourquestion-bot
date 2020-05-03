@@ -1,0 +1,86 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: cb5457c9d43e679753f0ded26d3f9aa3cabf1966bb519748acc967409faa3db4
+
+name:           whatsyourquestion-bot
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/whatsyourquestion-bot#readme>
+homepage:       https://github.com/githubuser/whatsyourquestion-bot#readme
+bug-reports:    https://github.com/githubuser/whatsyourquestion-bot/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2020 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/whatsyourquestion-bot
+
+library
+  exposed-modules:
+      BotCore
+  other-modules:
+      Paths_whatsyourquestion_bot
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , lens
+    , lens-aeson
+    , servant-server
+    , wai
+    , warp
+    , wreq
+  default-language: Haskell2010
+
+executable whatsyourquestion-bot-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_whatsyourquestion_bot
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , lens
+    , lens-aeson
+    , servant-server
+    , wai
+    , warp
+    , whatsyourquestion-bot
+    , wreq
+  default-language: Haskell2010
+
+test-suite whatsyourquestion-bot-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_whatsyourquestion_bot
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , lens
+    , lens-aeson
+    , servant-server
+    , wai
+    , warp
+    , whatsyourquestion-bot
+    , wreq
+  default-language: Haskell2010

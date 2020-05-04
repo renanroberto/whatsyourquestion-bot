@@ -1,14 +1,12 @@
-FROM haskell:8
+FROM haskell:latest
 
-ENV PORT 8000
 ENV TOKEN 1249897751:AAFtsjqj1ESLoY1lIfRPbRmx8w-1RK0WYZs
 
-WORKDIR /bot
+WORKDIR /app
 
-COPY . .
+COPY build/lib/ /lib/x86_64-linux-gnu/
+COPY build/lib64 /lib64/
+COPY build/bin .
 
-RUN stack build
+EXPOSE 8080
 
-EXPOSE 8000
-
-ENTRYPOINT ["stack", "run"]

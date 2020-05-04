@@ -1,1 +1,1 @@
-web: stack run
+web: whatsyourquestion-bot-exe

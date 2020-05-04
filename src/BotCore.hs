@@ -122,7 +122,8 @@ getQuestion msg =
        else Nothing
     
 isQuestion :: String -> Bool
-isQuestion = all (== '?')
+isQuestion [] = False
+isQuestion str = all (== '?') str
  
 
 replyToQuestion :: Message -> IO ()

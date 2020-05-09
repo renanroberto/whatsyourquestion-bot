@@ -137,8 +137,11 @@ replyToQuestion question =
   where
     getText :: Maybe String -> String
     getText Nothing = "Qual é a sua dúvida?"
-    getText (Just name) = "Qual é a sua dúvida, " ++ name ++ "?"
+    getText (Just name) = "Qual é a sua dúvida, " ++ safeName name ++ "?"
 
+
+safeName :: String -> String
+safeName name = "`" ++ name ++ "`"
  
 {-- Not using: Using webhooks
 getUpdates :: IO [Update]

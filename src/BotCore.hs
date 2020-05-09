@@ -79,6 +79,7 @@ data SendMessage = SendMessage
   { sendmessage_chat_id :: Int
   , sendmessage_reply_to_message_id :: Int
   , sendmessage_text :: String
+  , sendmessage_parse_mode :: String
   } deriving (Generic)
 
 instance ToJSON SendMessage where
@@ -131,9 +132,10 @@ replyToQuestion question =
   let
     chat = (chat_id . message_chat) question
     reply = message_message_id question
+    parseMode = "MarkdownV2"
     inquirer = user_first_name <$> (message_from question)
   in
-    sendMessage $ SendMessage chat reply (getText inquirer)
+    sendMessage $ SendMessage chat reply (getText inquirer) parseMode
   where
     getText :: Maybe String -> String
     getText Nothing = "Qual é a sua dúvida?"

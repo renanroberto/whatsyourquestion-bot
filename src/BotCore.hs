@@ -132,7 +132,7 @@ replyToQuestion question =
   let
     chat = (chat_id . message_chat) question
     reply = message_message_id question
-    parseMode = "MarkdownV2"
+    parseMode = ""
     inquirer = user_first_name <$> (message_from question)
   in
     sendMessage $ SendMessage chat reply (getText inquirer) parseMode
@@ -143,7 +143,7 @@ replyToQuestion question =
 
 
 safeName :: String -> String
-safeName name = "`" ++ name ++ "`"
+safeName = filter (/= '@')
  
 {-- Not using: Using webhooks
 getUpdates :: IO [Update]

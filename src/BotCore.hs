@@ -80,6 +80,7 @@ data SendMessage = SendMessage
   , sendmessage_reply_to_message_id :: Int
   , sendmessage_text :: String
   , sendmessage_parse_mode :: String
+  , sendmessage_disable_web_page_preview :: Bool
   } deriving (Generic)
 
 instance ToJSON SendMessage where
@@ -132,10 +133,18 @@ replyToQuestion question =
   let
     chat = (chat_id . message_chat) question
     reply = message_message_id question
-    parseMode = ""
     inquirer = user_first_name <$> (message_from question)
+    parseMode = ""
+    disablePreview = True
   in
-    sendMessage $ SendMessage chat reply (getText inquirer) parseMode
+    sendMessage $
+      SendMessage
+        { sendmessage_chat_id = chat
+        , sendmessage_reply_to_message_id = reply
+        , sendmessage_text = getText inquirer
+        , sendmessage_parse_mode = parseMode
+        , sendmessage_disable_web_page_preview = disablePreview
+        }
   where
     getText :: Maybe String -> String
     getText Nothing = "Qual é a sua dúvida?"

@@ -116,20 +116,20 @@ getQuestions (msg:messages) =
        else getQuestions messages
 --}
 
-getQuestion :: Message -> Maybe Message
+getQuestion :: Message -> Maybe (Message, String)
 getQuestion msg =
   let text = fromMaybe "" (message_text msg) in
     if isQuestion text
-       then Just msg
+       then Just (msg, take 10 text)
        else Nothing
     
 isQuestion :: String -> Bool
 isQuestion [] = False
 isQuestion str = all (== '?') str
- 
 
-replyToQuestion :: Message -> IO ()
-replyToQuestion question =
+
+replyToQuestion :: (Message, String) -> IO ()
+replyToQuestion (question, marks) =
   let
     chat = (chat_id . message_chat) question
     reply = message_message_id question
@@ -141,15 +141,15 @@ replyToQuestion question =
       SendMessage
         { sendmessage_chat_id = chat
         , sendmessage_reply_to_message_id = reply
-        , sendmessage_text = getText inquirer
+        , sendmessage_text = getText inquirer marks
         , sendmessage_parse_mode = parseMode
         , sendmessage_disable_web_page_preview = disablePreview
         }
-  where
-    getText :: Maybe String -> String
-    getText Nothing = "Qual é a sua dúvida?"
-    getText (Just name) = "Qual é a sua dúvida, " ++ safeName name ++ "?"
 
+getText :: Maybe String -> String -> String
+getText Nothing marks = "Qual é a sua dúvida" ++ marks
+getText (Just name) marks =
+  "Qual é a sua dúvida, " ++ safeName name ++ marks
 
 safeName :: String -> String
 safeName = filter (/= '@')

@@ -124,7 +124,6 @@ getQuestion msg =
        else Nothing
     
 isQuestion :: String -> Bool
-isQuestion "?" = True
 isQuestion ('?':str) = all (`elem` ['?', '!']) str
 isQuestion _ = False
 

@@ -10,12 +10,6 @@ import Data.Aeson hiding ((<?>))
 import Network.Wreq
 
 
-data Error = TokenNotFound
-
-instance Show Error where
-  show TokenNotFound = "Error: Token not found"
-
-
 data Chat = Chat
   { chat_id :: Int
   , chat_type :: String

@@ -150,7 +150,7 @@ getText :: String -> Maybe String -> String
 getText "¿" _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
 getText _ Nothing = "Qual é a sua dúvida?"
 getText marks (Just name) =
-  "Qual é a sua dúvida, " ++ safeName name ++ marks
+  "Qual é a sua dúvida, " ++ safeName name ++ (take 10 marks)
 
 safeName :: String -> String
 safeName = filter (/= '@')

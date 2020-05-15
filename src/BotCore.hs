@@ -107,9 +107,7 @@ dropPrefix prefix str = drop (length prefix) str
 getToken :: IO String
 getToken = do
   env <- lookupEnv "TOKEN"
-  case env of
-    Nothing -> print TokenNotFound >> return ""
-    Just token -> return token
+  return $ fromMaybe "" env
   
 
 api :: String -> String -> String

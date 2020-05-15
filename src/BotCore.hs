@@ -5,7 +5,7 @@ module BotCore (bot, Update) where
 import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
-import Control.Monad ((>=>))
+import Control.Monad ((<=<))
 import Data.Aeson
 import Network.Wreq
 
@@ -154,6 +154,6 @@ sendMessage message = do
 
 bot :: Update -> IO ()
 bot update = 
-  case (update_message >=> getQuestion) update of
+  case (getQuestion <=< update_message) update of
     Just question -> replyToQuestion question
     Nothing -> return ()

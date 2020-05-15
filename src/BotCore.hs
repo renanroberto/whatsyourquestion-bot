@@ -143,6 +143,24 @@ getText (Just name) marks =
 
 safeName :: String -> String
 safeName = filter (/= '@')
+
+
+-- Boa noite, Bruno
+checkSpecialCase :: Update -> IO ()
+checkSpecialCase update =
+  case (message_text <=< update_message) update of
+    Just "¿" ->
+      case update_message update of
+        Nothing -> return ()
+        Just message -> sendMessage $
+          SendMessage
+            { sendmessage_chat_id = (chat_id . message_chat) message
+            , sendmessage_reply_to_message_id = message_message_id message
+            , sendmessage_text = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ"
+            , sendmessage_parse_mode = ""
+            , sendmessage_disable_web_page_preview = True
+            }
+    _ -> return ()
  
 
 sendMessage :: SendMessage -> IO ()
@@ -156,4 +174,4 @@ bot :: Update -> IO ()
 bot update = 
   case (getQuestion <=< update_message) update of
     Just question -> replyToQuestion question
-    Nothing -> return ()
+    Nothing -> checkSpecialCase update

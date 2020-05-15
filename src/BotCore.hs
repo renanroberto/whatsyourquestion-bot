@@ -6,8 +6,14 @@ import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
 import Control.Monad ((<=<))
-import Data.Aeson
+import Data.Aeson hiding ((<?>))
 import Network.Wreq
+
+
+data Error = TokenNotFound
+
+instance Show Error where
+  show TokenNotFound = "Error: Token not found"
 
 
 data Chat = Chat
@@ -79,7 +85,6 @@ data SendMessage = SendMessage
   { sendmessage_chat_id :: Int
   , sendmessage_reply_to_message_id :: Int
   , sendmessage_text :: String
-  , sendmessage_parse_mode :: String
   , sendmessage_disable_web_page_preview :: Bool
   } deriving (Generic)
 
@@ -95,73 +100,21 @@ instance FromJSON SendMessage where
 dropPrefix :: String -> String -> String
 dropPrefix prefix str = drop (length prefix) str
 
+(<?>) :: (b -> Bool) -> (a -> Maybe b) -> (a -> Bool)
+(<?>) f g x = fromMaybe False $ fmap f (g x)
+
 
 getToken :: IO String
 getToken = do
   env <- lookupEnv "TOKEN"
-  return $ fromMaybe "" env
+  case env of
+    Nothing -> print TokenNotFound >> return ""
+    Just token -> return token
   
 
 api :: String -> String -> String
 api token method = "https://api.telegram.org/bot" ++ token ++ method
 
-
-getQuestion :: Message -> Maybe (Message, String)
-getQuestion msg =
-  let text = fromMaybe "" (message_text msg) in
-    if isQuestion text
-       then Just (msg, take 10 text)
-       else Nothing
-    
-isQuestion :: String -> Bool
-isQuestion ('?':str) = all (`elem` ['?', '!']) str
-isQuestion _ = False
-
-
-replyToQuestion :: (Message, String) -> IO ()
-replyToQuestion (question, marks) =
-  let
-    chat = (chat_id . message_chat) question
-    reply = message_message_id question
-    inquirer = user_first_name <$> (message_from question)
-    parseMode = ""
-    disablePreview = True
-  in
-    sendMessage $
-      SendMessage
-        { sendmessage_chat_id = chat
-        , sendmessage_reply_to_message_id = reply
-        , sendmessage_text = getText inquirer marks
-        , sendmessage_parse_mode = parseMode
-        , sendmessage_disable_web_page_preview = disablePreview
-        }
-
-getText :: Maybe String -> String -> String
-getText Nothing marks = "Qual é a sua dúvida" ++ marks
-getText (Just name) marks =
-  "Qual é a sua dúvida, " ++ safeName name ++ marks
-
-safeName :: String -> String
-safeName = filter (/= '@')
-
-
--- Boa noite, Bruno
-checkSpecialCase :: Update -> IO ()
-checkSpecialCase update =
-  case (message_text <=< update_message) update of
-    Just "¿" ->
-      case update_message update of
-        Nothing -> return ()
-        Just message -> sendMessage $
-          SendMessage
-            { sendmessage_chat_id = (chat_id . message_chat) message
-            , sendmessage_reply_to_message_id = message_message_id message
-            , sendmessage_text = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ"
-            , sendmessage_parse_mode = ""
-            , sendmessage_disable_web_page_preview = True
-            }
-    _ -> return ()
- 
 
 sendMessage :: SendMessage -> IO ()
 sendMessage message = do
@@ -170,8 +123,45 @@ sendMessage message = do
   return ()
 
 
+needAnswer :: Message -> Bool
+needAnswer = isQuestion <?> message_text
+
+isQuestion :: String -> Bool
+isQuestion ('?':str) = all (`elem` ['?', '!']) str
+isQuestion "¿" = True
+isQuestion _ = False
+
+
+answerQuestion :: Message -> SendMessage
+answerQuestion message =
+  let
+    chat = (chat_id . message_chat) message
+    reply = message_message_id message
+    text = fromMaybe "" $ message_text message
+    inquirer = user_first_name <$> (message_from message)
+    disablePreview = True
+  in
+    SendMessage
+      { sendmessage_chat_id = chat
+      , sendmessage_reply_to_message_id = reply
+      , sendmessage_text = getText text inquirer
+      , sendmessage_disable_web_page_preview = disablePreview
+      }
+
+getText :: String -> Maybe String -> String
+getText "¿" _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
+getText _ Nothing = "Qual é a sua dúvida?"
+getText marks (Just name) =
+  "Qual é a sua dúvida, " ++ safeName name ++ marks
+
+safeName :: String -> String
+safeName = filter (/= '@')
+
+
 bot :: Update -> IO ()
-bot update = 
-  case (getQuestion <=< update_message) update of
-    Just question -> replyToQuestion question
-    Nothing -> checkSpecialCase update
+bot update =
+  case update_message update of
+    Nothing -> return ()
+    Just message -> if needAnswer message
+      then (sendMessage . answerQuestion) message
+      else return ()

@@ -106,16 +106,6 @@ api :: String -> String -> String
 api token method = "https://api.telegram.org/bot" ++ token ++ method
 
 
-{-- Not using: getting one update per time
-getQuestions :: [Message] -> [Message]
-getQuestions [] = []
-getQuestions (msg:messages) =
-  let text = fromMaybe "" (message_text msg) in
-    if isQuestion text
-       then msg : (getQuestions messages)
-       else getQuestions messages
---}
-
 getQuestion :: Message -> Maybe (Message, String)
 getQuestion msg =
   let text = fromMaybe "" (message_text msg) in
@@ -154,13 +144,6 @@ getText (Just name) marks =
 safeName :: String -> String
 safeName = filter (/= '@')
  
-{-- Not using: Using webhooks
-getUpdates :: IO [Update]
-getUpdates = do
-  token <- getToken
-  res <- asJSON =<< get (api token "/getUpdates")
-  return $ result (res ^. responseBody)
---}
 
 sendMessage :: SendMessage -> IO ()
 sendMessage message = do

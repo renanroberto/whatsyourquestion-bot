@@ -5,10 +5,10 @@ module BotCore (bot, Update) where
 import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
-import Control.Monad ((<=<))
 import Data.Aeson hiding ((<?>))
 import Network.Wreq
 
+import SafeName
 
 data Chat = Chat
   { chat_id :: Int
@@ -136,19 +136,15 @@ answerQuestion message =
     SendMessage
       { sendmessage_chat_id = chat
       , sendmessage_reply_to_message_id = reply
-      , sendmessage_text = getText text inquirer
+      , sendmessage_text = getText text (safeName <$> inquirer)
       , sendmessage_disable_web_page_preview = disablePreview
       }
 
-getText :: String -> Maybe String -> String
+getText :: String -> Maybe SafeName -> String
 getText "¿" _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
 getText _ Nothing = "Qual é a sua dúvida?"
 getText marks (Just name) =
-  "Qual é a sua dúvida, " ++ safeName name ++ (take 10 marks)
-
-safeName :: String -> String
-safeName = filter (/= '@')
-
+  "Qual é a sua dúvida, " ++ unsafeName name ++ (take 10 marks)
 
 bot :: Update -> IO ()
 bot update =

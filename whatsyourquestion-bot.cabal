@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.33.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cb5457c9d43e679753f0ded26d3f9aa3cabf1966bb519748acc967409faa3db4
+-- hash: bf459bc35b34b523092aa53cf36e26a3a05e0a9d5b66e8dba4fd7a00729b17af
 
 name:           whatsyourquestion-bot
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       BotCore
+      SafeName
   other-modules:
       Paths_whatsyourquestion_bot
   hs-source-dirs:

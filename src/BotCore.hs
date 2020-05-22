@@ -5,8 +5,17 @@ module BotCore (bot, Update) where
 import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
-import Data.Aeson hiding ((<?>))
-import Network.Wreq
+import Network.Wreq (post)
+import Data.Aeson
+  ( ToJSON
+  , FromJSON
+  , toJSON
+  , parseJSON
+  , fieldLabelModifier
+  , genericParseJSON
+  , defaultOptions
+  , genericToJSON
+  )
 
 import SafeName
 

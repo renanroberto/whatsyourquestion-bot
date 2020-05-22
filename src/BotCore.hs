@@ -130,6 +130,7 @@ needAnswer = isQuestion <?> message_text
 isQuestion :: String -> Bool
 isQuestion ('?':str) = all (`elem` ['?', '!']) str
 isQuestion "¿" = True
+isQuestion "‽" = True
 isQuestion _ = False
 
 

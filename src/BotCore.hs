@@ -17,7 +17,8 @@ import Data.Aeson
   , genericToJSON
   )
 
-import SafeName
+import SafeName (safeName)
+import Answer (isQuestion, getAnswer)
 
 data Chat = Chat
   { chat_id :: Int
@@ -127,12 +128,6 @@ sendMessage message = do
 needAnswer :: Message -> Bool
 needAnswer = isQuestion <?> message_text
 
-isQuestion :: String -> Bool
-isQuestion ('?':str) = all (`elem` ['?', '!']) str
-isQuestion "¿" = True
-isQuestion "‽" = True
-isQuestion _ = False
-
 
 answerQuestion :: Message -> SendMessage
 answerQuestion message =
@@ -146,15 +141,10 @@ answerQuestion message =
     SendMessage
       { sendmessage_chat_id = chat
       , sendmessage_reply_to_message_id = reply
-      , sendmessage_text = getText text (safeName <$> inquirer)
+      , sendmessage_text = getAnswer text (safeName <$> inquirer)
       , sendmessage_disable_web_page_preview = disablePreview
       }
 
-getText :: String -> Maybe SafeName -> String
-getText "¿" _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
-getText _ Nothing = "Qual é a sua dúvida?"
-getText marks (Just name) =
-  "Qual é a sua dúvida, " ++ unsafeName name ++ (take 10 marks)
 
 bot :: Update -> IO ()
 bot update =

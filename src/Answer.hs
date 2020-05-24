@@ -15,7 +15,7 @@ isQuestion (x:xs) =
 
 getAnswer :: String -> Maybe SafeName -> String
 getAnswer "¿" _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
-getAnswer "‽" _ = "w̶h̷a̸t̶ ̸i̸s̷ ̷y̸o̷u̸r̵ ̸q̵u̶e̵s̶t̵i̴o̸n̴‽̶"
+getAnswer "‽" _ = "Q̶̥̎u̸͉͒å̸͜l̷̗̀ ̷̺̈é̸̗͆ ̸̘́a̴̧̔ ̴̜̍s̶̠̃u̴͌ͅa̴̦̾ ̷͆͜d̷̪͝ú̷͊͜v̷͍̽ī̴͇d̶̖̚a̴̩͐‽̵̟̉"
 getAnswer _ Nothing = "Qual é a sua dúvida?"
 getAnswer marks (Just name) =
   "Qual é a sua dúvida, " ++ show name ++ (take 10 marks)

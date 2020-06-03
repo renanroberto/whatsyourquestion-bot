@@ -23,7 +23,7 @@ import Answer (isQuestion, getAnswer)
 data Chat = Chat
   { chat_id :: Int
   , chat_type :: String
-  } deriving (Generic, Show)
+  } deriving (Generic, Eq)
 
 instance ToJSON Chat where
   toJSON = genericToJSON defaultOptions
@@ -37,7 +37,7 @@ instance FromJSON Chat where
 data User = User
   { user_id :: Int
   , user_first_name :: String
-  } deriving (Generic, Show)
+  } deriving (Generic, Eq)
 
 instance ToJSON User where
   toJSON = genericToJSON defaultOptions
@@ -54,7 +54,7 @@ data Message = Message
   , message_date :: Int
   , message_chat :: Chat
   , message_text :: Maybe String
-  } deriving (Generic, Show)
+  } deriving (Generic, Eq)
 
 instance ToJSON Message where
   toJSON = genericToJSON defaultOptions
@@ -68,7 +68,7 @@ instance FromJSON Message where
 data Update = Update
   { update_update_id :: Int
   , update_message :: Maybe Message
-  } deriving (Generic, Show)
+  } deriving (Generic, Eq)
 
 instance ToJSON Update where
   toJSON = genericToJSON defaultOptions
@@ -128,6 +128,19 @@ sendMessage message = do
 needAnswer :: Message -> Bool
 needAnswer = isQuestion <?> message_text
 
+hasRecentMessage :: [Update] -> Update -> Bool
+hasRecentMessage ups up =
+  length (filter (sameMsg up) ups) > 0
+    where sameMsg x y = sameChat x y && sameAuthor x y
+
+sameChat :: Update -> Update -> Bool
+sameChat x y = getChat x == getChat y
+  where getChat u = message_chat <$> update_message u
+
+sameAuthor :: Update -> Update -> Bool
+sameAuthor x y = getAuthor x == getAuthor y
+  where getAuthor u = update_message u >>= message_from
+
 
 answerQuestion :: Message -> SendMessage
 answerQuestion message =
@@ -150,6 +163,7 @@ bot :: [Update] -> Update -> IO ()
 bot state update =
   case update_message update of
     Nothing -> return ()
-    Just message -> if needAnswer message
-      then (sendMessage . answerQuestion) message
-      else return ()
+    Just message ->
+      if needAnswer message && not (hasRecentMessage state update)
+        then (sendMessage . answerQuestion) message
+        else return ()

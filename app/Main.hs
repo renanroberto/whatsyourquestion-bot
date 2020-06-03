@@ -5,9 +5,9 @@ module Main where
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
 import System.Environment (lookupEnv)
-import Control.Monad.Trans.State.Lazy hiding (State)
+import Control.Monad.Trans.State.Lazy hiding (State, state)
 import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent.STM (STM, atomically)
+import Control.Concurrent.STM (atomically)
 import Control.Concurrent.STM.TVar (TVar, newTVar, readTVar, writeTVar)
 import Servant
 import Network.Wai.Handler.Warp (run)

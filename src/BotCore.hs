@@ -20,10 +20,11 @@ import Data.Aeson
 import SafeName (safeName)
 import Answer (isQuestion, getAnswer)
 
+
 data Chat = Chat
   { chat_id :: Int
   , chat_type :: String
-  } deriving (Generic, Eq)
+  } deriving (Generic, Eq, Show)
 
 instance ToJSON Chat where
   toJSON = genericToJSON defaultOptions
@@ -37,7 +38,7 @@ instance FromJSON Chat where
 data User = User
   { user_id :: Int
   , user_first_name :: String
-  } deriving (Generic, Eq)
+  } deriving (Generic, Eq, Show)
 
 instance ToJSON User where
   toJSON = genericToJSON defaultOptions
@@ -54,7 +55,7 @@ data Message = Message
   , message_date :: Int
   , message_chat :: Chat
   , message_text :: Maybe String
-  } deriving (Generic, Eq)
+  } deriving (Generic, Eq, Show)
 
 instance ToJSON Message where
   toJSON = genericToJSON defaultOptions
@@ -68,7 +69,7 @@ instance FromJSON Message where
 data Update = Update
   { update_update_id :: Int
   , update_message :: Maybe Message
-  } deriving (Generic, Eq)
+  } deriving (Generic, Eq, Show)
 
 instance ToJSON Update where
   toJSON = genericToJSON defaultOptions
@@ -160,7 +161,8 @@ answerQuestion message =
 
 
 bot :: [Update] -> Update -> IO ()
-bot state update =
+bot [] _ = return ()
+bot (_:state) update =
   case update_message update of
     Nothing -> return ()
     Just message ->

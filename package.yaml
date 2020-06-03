@@ -25,6 +25,7 @@ dependencies:
 - aeson
 - lens
 - lens-aeson
+- transformers
 - wreq
 - servant-server
 - wai

@@ -7,7 +7,7 @@ import Data.Maybe (fromMaybe)
 import System.Environment (lookupEnv)
 import Control.Monad.Trans.State.Lazy hiding (State)
 import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent.STM (atomically)
+import Control.Concurrent.STM (STM, atomically)
 import Control.Concurrent.STM.TVar (TVar, newTVar, readTVar, writeTVar)
 import Servant
 import Network.Wai.Handler.Warp (run)
@@ -34,10 +34,14 @@ type API = RootAPI
 
 
 data State = State
-  { books :: TVar [String]
+  { recentUpdates :: TVar [Update]
   }
 
 type AppM = StateT State Handler
+
+
+updateState :: Update -> [Update] -> [Update]
+updateState u us = take 5 (u:us)
 
 
 getPort :: IO Int
@@ -57,17 +61,21 @@ rootHandler = return "online"
 botHandler :: Update -> String -> AppM NoContent
 botHandler update token = do
   envToken <- liftIO getToken
-  if envToken == token
-    then liftIO (bot update) >> return NoContent
-    else return NoContent
+  if envToken /= token
+    then return NoContent
+    else do
+      state <- get
+      let tupdates = recentUpdates state
+      liftIO . atomically $
+        readTVar tupdates
+        >>= (writeTVar tupdates . updateState update)
+      updates <- liftIO . atomically . readTVar $ tupdates
+      liftIO (bot updates update)
+      return NoContent
 
 bookHandler :: String -> AppM [String]
 bookHandler book = do
-  state <- get
-  let tbs = books state
-  liftIO . atomically $
-    readTVar tbs >>= (\bs -> writeTVar tbs (book : bs))
-  liftIO . atomically . readTVar $ tbs
+  return ["hey", "there", book]
 
 
 server :: ServerT API AppM

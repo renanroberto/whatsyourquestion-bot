@@ -146,8 +146,8 @@ answerQuestion message =
       }
 
 
-bot :: Update -> IO ()
-bot update =
+bot :: [Update] -> Update -> IO ()
+bot state update =
   case update_message update of
     Nothing -> return ()
     Just message -> if needAnswer message

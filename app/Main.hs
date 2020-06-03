@@ -64,9 +64,10 @@ botHandler update token = do
 bookHandler :: String -> AppM [String]
 bookHandler book = do
   state <- get
-  let p = books state
-  liftIO $ atomically $ readTVar p >>= writeTVar p . (book :)
-  liftIO $ atomically $ readTVar p
+  let tbs = books state
+  liftIO . atomically $
+    readTVar tbs >>= (\bs -> writeTVar tbs (book : bs))
+  liftIO . atomically . readTVar $ tbs
 
 
 server :: ServerT API AppM
@@ -88,5 +89,5 @@ main :: IO ()
 main = do
   port <- getPort
   putStrLn $ "Server is running on port " ++ (show port)
-  initialState <- atomically $ newTVar []
-  run port (app $ State initialState)
+  initialState <- (atomically . newTVar) []
+  run port $ app (State initialState)

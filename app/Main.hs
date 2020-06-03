@@ -7,6 +7,8 @@ import Data.Maybe (fromMaybe)
 import System.Environment (lookupEnv)
 import Control.Monad.Trans.State.Lazy hiding (State)
 import Control.Monad.IO.Class (liftIO)
+import Control.Concurrent.STM (atomically)
+import Control.Concurrent.STM.TVar (TVar, newTVar, readTVar, writeTVar)
 import Servant
 import Network.Wai.Handler.Warp (run)
 
@@ -32,14 +34,11 @@ type API = RootAPI
 
 
 data State = State
-  { books :: [String]
+  { books :: TVar [String]
   }
 
 type AppM = StateT State Handler
 
-
-initialState :: State
-initialState = State []
 
 getPort :: IO Int
 getPort = do
@@ -65,9 +64,9 @@ botHandler update token = do
 bookHandler :: String -> AppM [String]
 bookHandler book = do
   state <- get
-  let newState = State $ book : (books state)
-  put newState
-  return (books newState)
+  let p = books state
+  liftIO $ atomically $ readTVar p >>= writeTVar p . (book :)
+  liftIO $ atomically $ readTVar p
 
 
 server :: ServerT API AppM
@@ -89,4 +88,5 @@ main :: IO ()
 main = do
   port <- getPort
   putStrLn $ "Server is running on port " ++ (show port)
-  run port (app initialState)
+  initialState <- atomically $ newTVar []
+  run port (app $ State initialState)

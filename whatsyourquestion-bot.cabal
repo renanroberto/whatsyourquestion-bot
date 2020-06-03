@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: db8458382d43b8279b9afd9414fb19e02ddf7deea65dda17eebee69aeff8daf8
+-- hash: 0a4e1fbcebfd37266a2c29820163a469263922118f0579e943b183442ad02855
 
 name:           whatsyourquestion-bot
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
     , lens
     , lens-aeson
     , servant-server
+    , stm
     , transformers
     , wai
     , warp
@@ -61,6 +62,7 @@ executable whatsyourquestion-bot-exe
     , lens
     , lens-aeson
     , servant-server
+    , stm
     , transformers
     , wai
     , warp
@@ -83,6 +85,7 @@ test-suite whatsyourquestion-bot-test
     , lens
     , lens-aeson
     , servant-server
+    , stm
     , transformers
     , wai
     , warp

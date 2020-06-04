@@ -6,7 +6,7 @@ import SafeName (SafeName)
 
 
 questionMarks :: [Char]
-questionMarks = ['?', '¿', '‽', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
+questionMarks = ['?', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
 
 isQuestion :: String -> Bool
 isQuestion "" = False
@@ -16,6 +16,7 @@ isQuestion (x:xs) =
 getAnswer :: String -> Maybe SafeName -> String
 getAnswer "¿"  _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
 getAnswer "¿?" _ = "¿Cuál es tu pregunta?"
+getAnswer ";" _ = "Ποια είναι η ερώτησή σου;"
 getAnswer "‽"  _ =
   "Q̶̥̎u̸͉͒å̸͜l̷̗̀ ̷̺̈é̸̗͆ ̸̘́a̴̧̔ ̴̜̍s̶̠̃u̴͌ͅa̴̦̾ ̷͆͜d̷̪͝ú̷͊͜v̷͍̽ī̴͇d̶̖̚a̴̩͐‽̵̟̉"
 getAnswer "⸘"  _ =

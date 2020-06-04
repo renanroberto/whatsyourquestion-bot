@@ -24,14 +24,9 @@ type BotAPI =
     :> Capture "token" String
     :> Post '[JSON] NoContent
 
-type BookAPI =
-  "book"
-    :> Capture "book" String
-    :> Get '[JSON] [String]
 
 type API = RootAPI
            :<|> BotAPI
-           :<|> BookAPI
 
 
 data State = State
@@ -70,15 +65,10 @@ botHandler update token = do
         >>= (writeTVar tupdates . updateState update)
       return NoContent
 
-bookHandler :: String -> AppM [String]
-bookHandler book = do
-  return ["hey", "there", book]
-
 
 server :: ServerT API AppM
 server = rootHandler
          :<|> botHandler
-         :<|> bookHandler
 
 api :: Proxy API
 api = Proxy

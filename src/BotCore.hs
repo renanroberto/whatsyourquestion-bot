@@ -144,7 +144,6 @@ hasRecentMessage :: State -> Update -> Bool
 hasRecentMessage state update =
   let
     chat = fromMaybe 0 $ chat_id . message_chat <$> update_message update
-    author = message_from <$> update_message update
   in
     (sameAuthor update <?> Map.lookup chat) state
 

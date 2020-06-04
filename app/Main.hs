@@ -4,15 +4,16 @@ module Main where
 
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
+import qualified Data.Map.Lazy as Map
 import System.Environment (lookupEnv)
 import Control.Monad.Trans.State.Lazy hiding (State, state)
 import Control.Monad.IO.Class (liftIO)
 import Control.Concurrent.STM (atomically)
 import Control.Concurrent.STM.TVar (TVar, newTVar, readTVar, writeTVar)
-import Servant
 import Network.Wai.Handler.Warp (run)
+import Servant
 
-import BotCore (bot, Update)
+import BotCore (bot, updateState, Update)
 
 
 type RootAPI = Get '[PlainText] String
@@ -34,14 +35,10 @@ type API = RootAPI
 
 
 data State = State
-  { recentUpdates :: TVar [Update]
+  { recentUpdates :: TVar (Map.Map Int Update)
   }
 
 type AppM = StateT State Handler
-
-
-updateState :: Update -> [Update] -> [Update]
-updateState u us = take 5 (u:us)
 
 
 getPort :: IO Int
@@ -66,11 +63,11 @@ botHandler update token = do
     else do
       state <- get
       let tupdates = recentUpdates state
+      updates <- liftIO . atomically . readTVar $ tupdates
+      liftIO (bot updates update)
       liftIO . atomically $
         readTVar tupdates
         >>= (writeTVar tupdates . updateState update)
-      updates <- liftIO . atomically . readTVar $ tupdates
-      liftIO (bot updates update)
       return NoContent
 
 bookHandler :: String -> AppM [String]
@@ -97,5 +94,5 @@ main :: IO ()
 main = do
   port <- getPort
   putStrLn $ "Server is running on port " ++ (show port)
-  initialState <- (atomically . newTVar) []
+  initialState <- (atomically . newTVar) Map.empty
   run port $ app (State initialState)

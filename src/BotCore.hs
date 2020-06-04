@@ -1,10 +1,11 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric, DeriveAnyClass #-}
 
-module BotCore (bot, Update) where
+module BotCore (bot, updateState, Update) where
 
 import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
+import qualified Data.Map.Lazy as Map
 import Network.Wreq (post)
 import Data.Aeson
   ( ToJSON
@@ -102,6 +103,9 @@ instance FromJSON SendMessage where
     { fieldLabelModifier = dropPrefix "sendmessage_" }
 
 
+type State = Map.Map Int Update
+
+
 dropPrefix :: String -> String -> String
 dropPrefix prefix str = drop (length prefix) str
 
@@ -113,11 +117,9 @@ getToken :: IO String
 getToken = do
   env <- lookupEnv "TOKEN"
   return $ fromMaybe "" env
-  
 
 api :: String -> String -> String
 api token method = "https://api.telegram.org/bot" ++ token ++ method
-
 
 sendMessage :: SendMessage -> IO ()
 sendMessage message = do
@@ -126,17 +128,25 @@ sendMessage message = do
   return ()
 
 
+updateState :: Update -> State -> State
+updateState update state =
+  let
+    chat = fromMaybe 0 $ chat_id . message_chat <$> update_message update
+  in
+    Map.insert chat update state
+
+
 needAnswer :: Message -> Bool
 needAnswer = isQuestion <?> message_text
 
-hasRecentMessage :: [Update] -> Update -> Bool
-hasRecentMessage ups up =
-  length (filter (sameMsg up) ups) > 0
-    where sameMsg x y = sameChat x y && sameAuthor x y
 
-sameChat :: Update -> Update -> Bool
-sameChat x y = getChat x == getChat y
-  where getChat u = message_chat <$> update_message u
+hasRecentMessage :: State -> Update -> Bool
+hasRecentMessage state update =
+  let
+    chat = fromMaybe 0 $ chat_id . message_chat <$> update_message update
+    author = message_from <$> update_message update
+  in
+    (sameAuthor update <?> Map.lookup chat) state
 
 sameAuthor :: Update -> Update -> Bool
 sameAuthor x y = getAuthor x == getAuthor y
@@ -160,9 +170,8 @@ answerQuestion message =
       }
 
 
-bot :: [Update] -> Update -> IO ()
-bot [] _ = return ()
-bot (_:state) update =
+bot :: State -> Update -> IO ()
+bot state update =
   case update_message update of
     Nothing -> return ()
     Just message ->

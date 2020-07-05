@@ -5,6 +5,7 @@ module BotCore (bot, updateState, Update) where
 import GHC.Generics
 import System.Environment (lookupEnv)
 import Data.Maybe (fromMaybe)
+import Control.Applicative (liftA2)
 import qualified Data.Map.Lazy as Map
 import Network.Wreq (post)
 import Data.Aeson
@@ -53,6 +54,7 @@ instance FromJSON User where
 data Message = Message
   { message_message_id :: Int
   , message_from :: Maybe User
+  , message_reply_to_message :: Maybe Message
   , message_date :: Int
   , message_chat :: Chat
   , message_text :: Maybe String
@@ -109,8 +111,15 @@ type State = Map.Map Int Update
 dropPrefix :: String -> String -> String
 dropPrefix prefix str = drop (length prefix) str
 
-(<?>) :: (b -> Bool) -> (a -> Maybe b) -> (a -> Bool)
-(<?>) f g x = fromMaybe False $ fmap f (g x)
+(<?>) :: (a -> Bool) -> Maybe a -> Bool
+(<?>) _ Nothing = False
+(<?>) f (Just x) = f x
+
+infixl 4 <?>
+
+maybeToBool :: Maybe Bool -> Bool
+maybeToBool Nothing = False
+maybeToBool (Just b) = b
 
 
 getToken :: IO String
@@ -136,20 +145,44 @@ updateState update state =
     Map.insert chat update state
 
 
-needAnswer :: Message -> Bool
-needAnswer = isQuestion <?> message_text
+sameAuthor :: Message -> Message -> Bool
+sameAuthor x y = message_from x == message_from y
 
+messageIsQuestion :: Message -> Bool
+messageIsQuestion message = isQuestion <?> message_text message
 
 hasRecentMessage :: State -> Update -> Bool
 hasRecentMessage state update =
   let
     chat = fromMaybe 0 $ chat_id . message_chat <$> update_message update
+    message = update_message update
   in
-    (sameAuthor update <?> Map.lookup chat) state
+    maybeToBool $ liftA2 sameAuthor message (savedMessage chat)
+  where savedMessage :: Int -> Maybe Message
+        savedMessage chat = Map.lookup chat state >>= update_message
 
-sameAuthor :: Update -> Update -> Bool
-sameAuthor x y = getAuthor x == getAuthor y
-  where getAuthor u = update_message u >>= message_from
+isAnswering :: Message -> Bool
+isAnswering message =
+  let
+    mreply = message_reply_to_message message
+  in
+    case mreply of
+      Nothing -> False
+      Just reply ->
+        not $ sameAuthor message reply
+
+needAnswer :: State -> Update -> Bool
+needAnswer state update =
+  let
+    message = update_message update
+  in
+    if not $ messageIsQuestion <?> message
+       then False
+       else if not $ hasRecentMessage state update
+               then True
+               else if isAnswering <?> message
+                       then True
+                       else False
 
 
 answerQuestion :: Message -> SendMessage
@@ -174,6 +207,6 @@ bot state update =
   case update_message update of
     Nothing -> return ()
     Just message ->
-      if needAnswer message && not (hasRecentMessage state update)
+      if needAnswer state update
         then (sendMessage . answerQuestion) message
         else return ()

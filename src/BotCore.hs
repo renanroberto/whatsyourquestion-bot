@@ -83,12 +83,6 @@ instance FromJSON Update where
     { fieldLabelModifier = dropPrefix "update_" }
 
 
-data Telegram = Telegram
-  { ok :: Bool
-  , result :: [Update]
-  } deriving (Generic, ToJSON, FromJSON)
-
-
 data SendMessage = SendMessage
   { sendmessage_chat_id :: Int
   , sendmessage_reply_to_message_id :: Int

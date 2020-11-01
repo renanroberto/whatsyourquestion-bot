@@ -6,7 +6,7 @@ import SafeName (SafeName)
 
 
 questionMarks :: [Char]
-questionMarks = ['?', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
+questionMarks = ['?', '？', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
 
 isQuestion :: String -> Bool
 isQuestion "" = False

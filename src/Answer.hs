@@ -8,10 +8,13 @@ import SafeName (SafeName)
 questionMarks :: [Char]
 questionMarks = ['?', '？', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
 
+negligibleMarks :: [Char]
+negligibleMarks = ['!', '(', ')', '[', ']', '{', '}', '\'', '"']
+
 isQuestion :: String -> Bool
-isQuestion "" = False
-isQuestion (x:xs) =
-  x `elem` questionMarks && all (`elem` '!':questionMarks) xs
+isQuestion xs =
+  any (`elem` questionMarks) xs && all (`elem` allMarks) xs
+  where allMarks = questionMarks ++ negligibleMarks
 
 getAnswer :: String -> Maybe SafeName -> String
 getAnswer "¿"  _ = "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno

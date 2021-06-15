@@ -21,17 +21,14 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- bytestring
 - containers
 - aeson
 - lens
-- lens-aeson
-- transformers
-- stm
-- wreq
 - servant-server
 - wai
 - warp
+- wreq
+- hspec
 
 library:
   source-dirs: src
@@ -46,6 +43,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - whatsyourquestion-bot
+    when:
+    - condition: false
+      other-modules: Paths_whatsyourquestion_bot
 
 tests:
   whatsyourquestion-bot-test:

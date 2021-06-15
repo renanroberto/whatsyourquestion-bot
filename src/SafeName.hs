@@ -1,11 +1,13 @@
-{-# LANGUAGE Safe #-}
+module SafeName (SafeName, safeName, getName) where
 
-module SafeName (SafeName, safeName) where
+newtype SafeName = SN { getName :: String }
+  deriving (Show, Eq)
 
-newtype SafeName = SN String
+isSafe :: String -> Bool
+isSafe name = '@' `notElem` name
 
-instance Show SafeName where
-  show (SN str) = str
-
-safeName :: String -> SafeName
-safeName = SN . filter (/= '@')
+safeName :: String -> Maybe SafeName
+safeName name =
+  if isSafe name
+     then Just (SN name)
+     else Nothing

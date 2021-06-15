@@ -1,88 +1,80 @@
-{-# LANGUAGE OverloadedStrings, DataKinds, TypeOperators #-}
-
+{-# LANGUAGE DataKinds, TypeOperators #-}
 module Main where
 
+import GHC.Conc
+import System.Environment (lookupEnv, getEnv)
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
-import qualified Data.Map.Lazy as Map
-import System.Environment (lookupEnv)
-import Control.Monad.Trans.State.Lazy hiding (State, state)
+import qualified Data.Map.Strict as Map
 import Control.Monad.IO.Class (liftIO)
-import Control.Concurrent.STM (atomically)
-import Control.Concurrent.STM.TVar (TVar, newTVar, readTVar, writeTVar)
 import Network.Wai.Handler.Warp (run)
 import Servant
 
-import BotCore (bot, updateState, Update)
-
-
-type RootAPI = Get '[PlainText] String
-
-type BotAPI =
-  "bot"
-    :> ReqBody '[JSON] Update
-    :> Capture "token" String
-    :> Post '[JSON] NoContent
-
-
-type API = RootAPI
-           :<|> BotAPI
-
-
-data State = State
-  { recentUpdates :: TVar (Map.Map Int Update)
-  }
-
-type AppM = StateT State Handler
+import TelegramTypes (Update, Recent, Token)
+import BotCore
 
 
 getPort :: IO Int
 getPort = do
   env <- lookupEnv "PORT"
-  return $ fromMaybe 8080 (env >>= readMaybe)
+  let port = env >>= readMaybe
+  pure (fromMaybe 8080 port)
 
-getToken :: IO String
-getToken = do
-  env <- lookupEnv "TOKEN"
-  return $ fromMaybe "" env
-
-
-rootHandler :: AppM String
-rootHandler = return "online"
-
-botHandler :: Update -> String -> AppM NoContent
-botHandler update token = do
-  envToken <- liftIO getToken
-  if envToken /= token
-    then return NoContent
-    else do
-      state <- get
-      let tupdates = recentUpdates state
-      updates <- liftIO . atomically . readTVar $ tupdates
-      liftIO (bot updates update)
-      liftIO . atomically $
-        readTVar tupdates
-        >>= (writeTVar tupdates . updateState update)
-      return NoContent
+getToken :: IO Token
+getToken = getEnv "TOKEN"
 
 
-server :: ServerT API AppM
-server = rootHandler
-         :<|> botHandler
+type State  = TVar Recent
+
+initialState :: STM State
+initialState = newTVar Map.empty
+
+
+type RootAPI = Get '[PlainText] String
+
+rootAPI :: Server RootAPI
+rootAPI = pure "ok"
+
+
+type BotAPI =
+  "bot"
+  :> ReqBody '[JSON] Update
+  :> Capture "token" Token
+  :> Post '[JSON] NoContent
+
+protectedBotAPI :: State -> Server BotAPI
+protectedBotAPI state update token = liftIO $ do
+  token' <- getToken
+  if token == token'
+    then botAPI state update
+    else pure NoContent
+
+botAPI :: State -> Update -> IO NoContent
+botAPI state update = do
+  recent <- atomically (readTVar state)
+  bot recent update
+
+  atomically $ do
+    recent' <- readTVar state
+    let updatedRecent = updateRecent update recent'
+    writeTVar state updatedRecent
+
+  pure NoContent
+
+
+type API = RootAPI :<|> BotAPI
 
 api :: Proxy API
 api = Proxy
 
-nt :: State -> AppM a -> Handler a
-nt s x = evalStateT x s
-
 app :: State -> Application
-app state = serve api $ hoistServer api (nt state) server
+app state = serve api $
+  rootAPI :<|> protectedBotAPI state
 
 
 main :: IO ()
 main = do
   port <- getPort
-  putStrLn $ "Server is running on port " ++ (show port)
-  initialState <- (atomically . newTVar) Map.empty
-  run port $ app (State initialState)
+  putStrLn $ "Server is running on port " <> show port
+  state <- atomically initialState
+  run port (app state)

@@ -15,14 +15,14 @@ import TelegramTypes
 
 
 {--
-                          sim                       sim
-mensagem -> é uma dúvida? -> responde outra pessoa? -> questiona
-                | não                  | não
-                v                      v                sim
-              noop     última mensagem do grupo é dele? -> noop
-                                       | não
+                          yes                       yes
+message -> is a question? -> anwswer another person? -> answer
+                | no                   | no
+                v                      v                    yes
+              noop     it was the last user to send message? -> noop
+                                       | no
                                        v
-                                   questiona
+                                     answer
 --}
 
 isReply :: Update -> Bool

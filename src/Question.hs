@@ -15,7 +15,7 @@ questionMarks :: [Char]
 questionMarks = ['?', '？', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
 
 deadMarks :: [Char]
-deadMarks = ['(', ')', '[', ']', '{', '}', '\'', '"', '.']
+deadMarks = ['(', ')', '[', ']', '{', '}', '\'', '"', '.', '\\']
 
 semiDeadMarks :: [Char]
 semiDeadMarks = ['!']

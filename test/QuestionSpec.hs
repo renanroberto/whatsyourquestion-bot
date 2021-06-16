@@ -20,6 +20,7 @@ spec = do
       isQuestion "?!" `shouldBe` True
       isQuestion "(?!)" `shouldBe` True
       isQuestion ".?" `shouldBe` True
+      isQuestion "\\?" `shouldBe` True
 
     it "returns true to special question marks" $ do
       isQuestion "‽" `shouldBe` True

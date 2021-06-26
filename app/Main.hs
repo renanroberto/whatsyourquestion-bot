@@ -1,17 +1,19 @@
-{-# LANGUAGE DataKinds, TypeOperators #-}
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE TypeOperators #-}
+
 module Main where
 
-import GHC.Conc
-import System.Environment (lookupEnv, getEnv)
-import Text.Read (readMaybe)
-import Data.Maybe (fromMaybe)
-import qualified Data.Map.Strict as Map
-import Control.Monad.IO.Class (liftIO)
-import Network.Wai.Handler.Warp (run)
-import Servant
+import           Control.Monad.IO.Class   (liftIO)
+import qualified Data.Map.Strict          as Map
+import           Data.Maybe               (fromMaybe)
+import           GHC.Conc
+import           Network.Wai.Handler.Warp (run)
+import           Servant
+import           System.Environment       (getEnv, lookupEnv)
+import           Text.Read                (readMaybe)
 
-import TelegramTypes (Update, Recent, Token)
-import BotCore
+import           BotCore
+import           TelegramTypes            (Recent, Token, Update)
 
 
 getPort :: IO Int

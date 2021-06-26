@@ -7,8 +7,8 @@ module Question
   , chooseAnswer
   ) where
 
-import Data.Function ((&))
-import SafeName (SafeName, getName)
+import           Data.Function ((&))
+import           SafeName      (SafeName, getName)
 
 
 questionMarks :: [Char]
@@ -21,7 +21,7 @@ semiDeadMarks :: [Char]
 semiDeadMarks = ['!']
 
 every :: (a -> Bool) -> [a] -> Bool
-every _ [] = False
+every _ []    = False
 every prop xs = all prop xs
 
 

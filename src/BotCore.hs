@@ -1,17 +1,14 @@
-{-# LANGUAGE DuplicateRecordFields, RankNTypes, FlexibleInstances #-}
-
 module BotCore (bot, core, updateRecent, shouldAnswer) where
 
-import Data.Maybe (fromMaybe)
+import           Control.Lens
 import qualified Data.Map.Strict as Map
-import Control.Lens
+import           Data.Maybe      (fromMaybe)
 
-import Question
-import SafeName
-import Flow
-import Telegram
-import TelegramTypes
-
+import           Flow            (flow, (?>))
+import           Question
+import           SafeName        (SafeName, safeName)
+import           Telegram        (MonadTelegram, sendAnswer)
+import           TelegramTypes
 
 {--
                           yes                       yes
@@ -84,4 +81,4 @@ core recent update
   | otherwise = pure ()
 
 bot :: Recent -> Update -> IO ()
-bot = core 
+bot = core

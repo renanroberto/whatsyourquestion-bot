@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6c18987e38d960c1c052b3e26fd9698e8bfcd5491498576fa88b0c25f160a8f6
+-- hash: 1ebfd5d709b739836c4277ba129bd51fb178eb00dcb54d8bf5ca067c9d2b66ef
 
 name:           whatsyourquestion-bot
 version:        0.1.0.0
@@ -54,7 +54,7 @@ executable whatsyourquestion-bot-exe
   main-is: Main.hs
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
       aeson
     , base >=4.7 && <5

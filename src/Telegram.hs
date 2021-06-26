@@ -1,14 +1,16 @@
-{-# LANGUAGE FlexibleInstances, DuplicateRecordFields #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances     #-}
+
 module Telegram where
 
-import System.Environment (getEnv)
-import Data.Aeson (toJSON)
-import Data.Maybe (fromMaybe)
-import Network.Wreq (post)
-import Control.Lens
+import           Control.Lens
+import           Data.Aeson         (toJSON)
+import           Data.Maybe         (fromMaybe)
+import           Network.Wreq       (post)
+import           System.Environment (getEnv)
 
-import Logger
-import TelegramTypes
+import           Logger
+import           TelegramTypes
 
 
 class Monad m => MonadTelegram m where

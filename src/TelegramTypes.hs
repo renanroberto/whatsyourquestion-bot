@@ -1,12 +1,15 @@
-{-# LANGUAGE TemplateHaskell, DeriveGeneric, DeriveAnyClass, DuplicateRecordFields #-}
+{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE TemplateHaskell       #-}
 
 module TelegramTypes where
 
-import Prelude hiding (id)
-import GHC.Generics
-import Data.Aeson
-import Control.Lens
+import           Control.Lens
+import           Data.Aeson
 import qualified Data.Map.Strict as Map
+import           GHC.Generics
+import           Prelude         hiding (id)
 
 
 data Chat = Chat

@@ -1,4 +1,4 @@
-{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances, DuplicateRecordFields #-}
 module Telegram where
 
 import System.Environment (getEnv)
@@ -7,7 +7,19 @@ import Data.Maybe (fromMaybe)
 import Network.Wreq (post)
 import Control.Lens
 
+import Logger
 import TelegramTypes
+
+
+class Monad m => MonadTelegram m where
+  sendAnswer :: Update -> String -> m ()
+
+instance MonadTelegram IO where
+  sendAnswer update msg =
+    sendMessage . answerQuestion update $ msg
+
+instance MonadTelegram (Logger [String]) where
+  sendAnswer _update msg = logger "Telegram" msg
 
 
 api :: String -> String -> String

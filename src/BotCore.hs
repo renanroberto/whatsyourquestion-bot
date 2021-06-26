@@ -6,7 +6,6 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
 import Control.Lens
 
-import Logger
 import Question
 import SafeName
 import Flow
@@ -74,17 +73,6 @@ updateRecent update recent =
   in Map.insert chatId update recent
 
 
-class Monad m => MonadTelegram m where
-  sendAnswer :: Update -> String -> m ()
-
-instance MonadTelegram IO where
-  sendAnswer update msg =
-    sendMessage . answerQuestion update $ msg
-
-instance MonadTelegram (Logger [String]) where
-  sendAnswer _update msg = logger "Telegram" msg
-
-
 core :: MonadTelegram m => Recent -> Update -> m ()
 core recent update
   | shouldAnswer recent update = do
@@ -94,7 +82,6 @@ core recent update
       sendAnswer update answer
 
   | otherwise = pure ()
-
 
 bot :: Recent -> Update -> IO ()
 bot = core 

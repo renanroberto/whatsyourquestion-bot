@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       BotCore
+      Env
       Flow
       HTTP
       Logger

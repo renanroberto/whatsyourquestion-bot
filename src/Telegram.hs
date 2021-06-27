@@ -4,11 +4,11 @@
 module Telegram where
 
 import           Control.Lens
-import           Data.Maybe         (fromMaybe)
-import           System.Environment (getEnv)
+import           Data.Maybe    (fromMaybe)
 
-import           Logger
+import           Env
 import           HTTP
+import           Logger
 import           TelegramTypes
 
 
@@ -36,7 +36,7 @@ answerQuestion update answer = SendMessage
   , disable_web_page_preview = True
   }
 
-sendMessage :: SendMessage -> IO ()
+sendMessage :: (MonadEnv m, MonadHTTP m) => SendMessage -> m ()
 sendMessage msg = do
   token <- getEnv "TOKEN"
   _ <- post (api token "/sendMessage") msg

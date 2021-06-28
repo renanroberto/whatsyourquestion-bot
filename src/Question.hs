@@ -12,7 +12,7 @@ import           SafeName      (SafeName, getName)
 
 
 questionMarks :: [Char]
-questionMarks = ['?', '？', '¿', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
+questionMarks = ['?', '？', '¿', '⸮', '‽', '⸘', ';', '՞', '؟', '፧', '⁇', '⁈', '⁉']
 
 deadMarks :: [Char]
 deadMarks = ['(', ')', '[', ']', '{', '}', '\'', '"', '.', '\\']
@@ -48,6 +48,7 @@ chooseAnswer :: Question -> Maybe SafeName -> String
 chooseAnswer qst maybeName =
   case (getQuestion qst, maybeName) of
     ("¿" , _) -> "¿ɐpᴉʌn̗p ɐns ɐ ǝ̗ ʅɐnꝹ" -- Boa noite, Bruno
+    ("⸮" , _) -> "⸮adivúd aus é lauQ"
     ("¿?", _) -> "¿Cuál es tu pregunta?"
     (";" , _) -> "Ποια είναι η ερώτησή σου;"
     ("？", _) -> "Omae wa mō shindeiru. NANI？"

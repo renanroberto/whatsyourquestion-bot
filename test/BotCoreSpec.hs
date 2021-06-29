@@ -1,4 +1,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+
 module BotCoreSpec where
 
 import           Data.Function   ((&))
@@ -68,13 +70,18 @@ spec = do
 
   describe "core" $ do
     it "should answer the question" $ do
-      "?!?!"
-      & updateFactory Nothing
-      & core Map.empty
-      & runWriter
-      & snd
-      & unlines
-      & shouldBe "[Telegram]\tQual é a sua dúvida, some user?!?!\n"
+      let result :: [String] =
+            "?!?!"
+            & updateFactory Nothing
+            & core Map.empty
+            & runWriter
+            & snd
+
+      result `shouldBe`
+        [ "[Env]\tGet environment variable TOKEN"
+        , "[HTTP]\tPOST request to " <>
+          "https://api.telegram.org/bot<TOKEN>/sendMessage"
+        ]
 
     it "should not answer the message" $ do
       "yup"

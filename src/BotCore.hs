@@ -4,10 +4,12 @@ import           Control.Lens
 import qualified Data.Map.Strict as Map
 import           Data.Maybe      (fromMaybe)
 
+import           Env
 import           Flow            (flow, (?>))
+import           HTTP
 import           Question
 import           SafeName        (SafeName, safeName)
-import           Telegram        (MonadTelegram, sendAnswer)
+import           Telegram        (sendAnswer)
 import           TelegramTypes
 
 {--
@@ -70,7 +72,7 @@ updateRecent update recent =
   in Map.insert chatId update recent
 
 
-core :: MonadTelegram m => Recent -> Update -> m ()
+core :: (MonadEnv m, MonadHTTP m) => Recent -> Update -> m ()
 core recent update
   | shouldAnswer recent update = do
       let messageQuestion = getMessageQuestion update

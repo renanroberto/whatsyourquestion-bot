@@ -22,12 +22,13 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- bytestring
 - aeson
 - lens
 - servant-server
 - wai
 - warp
-- wreq
+- http-conduit
 - hspec
 
 library:

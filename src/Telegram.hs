@@ -4,12 +4,11 @@
 module Telegram where
 
 import           Control.Lens
-import           Data.Aeson         (toJSON)
 import           Data.Maybe         (fromMaybe)
-import           Network.Wreq       (post)
 import           System.Environment (getEnv)
 
 import           Logger
+import           HTTP
 import           TelegramTypes
 
 
@@ -40,5 +39,5 @@ answerQuestion update answer = SendMessage
 sendMessage :: SendMessage -> IO ()
 sendMessage msg = do
   token <- getEnv "TOKEN"
-  _ <- post (api token "/sendMessage") (toJSON msg)
+  _ <- post (api token "/sendMessage") msg
   pure ()

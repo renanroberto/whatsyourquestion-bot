@@ -3,7 +3,7 @@
 
 module HTTP where
 
-import           Data.Aeson           (ToJSON)
+import           Data.Aeson           (ToJSON, encode)
 import           Data.ByteString.Lazy (ByteString)
 import           Data.Function        ((&))
 import           Network.HTTP.Simple  hiding (Response)
@@ -37,5 +37,9 @@ instance MonadHTTP Tracer where
   get url =
     trace "HTTP" ("GET request to " <> url) >> pure (Response "")
 
-  post url _payload =
-    trace "HTTP" ("POST request to " <> url) >> pure (Response "")
+  post url payload =
+    trace "HTTP" (message url payload) >> pure (Response "")
+
+message :: ToJSON a => String -> a -> String
+message url payload =
+  "POST request to " <> url <> "\n" <> (show . encode) payload

@@ -80,7 +80,10 @@ spec = do
       result `shouldBe`
         [ "[Env]\tGet environment variable TOKEN"
         , "[HTTP]\tPOST request to " <>
-          "https://api.telegram.org/bot<TOKEN>/sendMessage"
+          "https://api.telegram.org/bot<TOKEN>/sendMessage\n" <>
+          "\"{\\\"text\\\":\\\"Qual \\195\\169 a sua d\\195\\186vida, " <>
+          "some user?!?!\\\",\\\"reply_to_message_id\\\":1," <>
+          "\\\"chat_id\\\":1,\\\"disable_web_page_preview\\\":true}\""
         ]
 
     it "should not answer the message" $ do

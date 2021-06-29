@@ -1,16 +1,16 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 module BotCoreSpec where
 
+import           Data.Function   ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust, isNothing)
-import Data.Function ((&))
+import           Data.Maybe      (isJust, isNothing)
 
-import BotCore
-import TelegramTypes
-import Logger
+import           BotCore
+import           TelegramTypes
+import           Tracer
 
-import Factory
-import Test.Hspec
+import           Factory
+import           Test.Hspec
 
 
 spec :: Spec
@@ -47,7 +47,7 @@ spec = do
     it "should not answer when it was the last message" $ do
       let update = updateFactory Nothing "?!"
       let recent = Map.singleton 1 update
-      
+
       shouldAnswer recent update `shouldBe` False
 
     it "should answer when it was last message of another chat" $ do
@@ -71,7 +71,7 @@ spec = do
       "?!?!"
       & updateFactory Nothing
       & core Map.empty
-      & runLogger
+      & runWriter
       & snd
       & unlines
       & shouldBe "[Telegram]\tQual é a sua dúvida, some user?!?!\n"
@@ -80,7 +80,7 @@ spec = do
       "yup"
       & updateFactory Nothing
       & core Map.empty
-      & runLogger
+      & runWriter
       & snd
       & unlines
       & shouldBe ""

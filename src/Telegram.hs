@@ -8,8 +8,8 @@ import           Data.Maybe    (fromMaybe)
 
 import           Env
 import           HTTP
-import           Logger
 import           TelegramTypes
+import           Tracer
 
 
 class Monad m => MonadTelegram m where
@@ -19,8 +19,8 @@ instance MonadTelegram IO where
   sendAnswer update msg =
     sendMessage . answerQuestion update $ msg
 
-instance MonadTelegram (Logger [String]) where
-  sendAnswer _update msg = logger "Telegram" msg
+instance MonadTelegram Tracer where
+  sendAnswer _update msg = trace "Telegram" msg
 
 
 api :: String -> String -> String

@@ -8,7 +8,7 @@ import           Data.ByteString.Lazy (ByteString)
 import           Data.Function        ((&))
 import           Network.HTTP.Simple  hiding (Response)
 
-import           Logger
+import           Tracer
 
 
 data Response a = Response a
@@ -33,9 +33,9 @@ instance MonadHTTP IO where
     response <- httpLBS request
     pure . Response . getResponseBody $ response
 
-instance MonadHTTP (Logger [String]) where
+instance MonadHTTP Tracer where
   get url =
-    logger "HTTP" ("GET request to " <> url) >> pure (Response "")
+    trace "HTTP" ("GET request to " <> url) >> pure (Response "")
 
   post url _payload =
-    logger "HTTP" ("POST request to " <> url) >> pure (Response "")
+    trace "HTTP" ("POST request to " <> url) >> pure (Response "")

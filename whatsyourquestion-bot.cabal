@@ -31,7 +31,7 @@ library
       Env
       Flow
       HTTP
-      Logger
+      Tracer
       Question
       SafeName
       Telegram

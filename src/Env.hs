@@ -4,7 +4,7 @@ module Env where
 
 import qualified System.Environment as SysEnv
 
-import           Logger
+import           Tracer
 
 
 class Monad m => MonadEnv m where
@@ -15,12 +15,12 @@ instance MonadEnv IO where
   getEnv = SysEnv.getEnv
   lookupEnv = SysEnv.lookupEnv
 
-instance MonadEnv (Logger [String]) where
+instance MonadEnv Tracer where
   getEnv key =
-    logger "Env" ("Get environment variable " <> key) >> (pure . tag) key
+    trace "Env" ("Get environment variable " <> key) >> (pure . tag) key
 
   lookupEnv key =
-    logger "Env" ("Maybe get environment variable " <> key)
+    trace "Env" ("Maybe get environment variable " <> key)
     >> (pure . Just . tag) key
 
 

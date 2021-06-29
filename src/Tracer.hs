@@ -22,3 +22,6 @@ type Tracer = Writer [String]
 trace :: String -> String -> Tracer ()
 trace label msg = tell [quote label <> msg]
   where quote s = "[" <> s <> "]\t"
+
+showTrace :: Tracer a -> IO ()
+showTrace = putStr . unlines . snd . runWriter

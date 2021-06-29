@@ -1,4 +1,4 @@
-module BotCore (bot, core, updateRecent, shouldAnswer) where
+module BotCore (bot, updateRecent, shouldAnswer) where
 
 import           Control.Lens
 import qualified Data.Map.Strict as Map
@@ -72,8 +72,8 @@ updateRecent update recent =
   in Map.insert chatId update recent
 
 
-core :: (MonadEnv m, MonadHTTP m) => Recent -> Update -> m ()
-core recent update
+bot :: (MonadEnv m, MonadHTTP m) => Recent -> Update -> m ()
+bot recent update
   | shouldAnswer recent update = do
       let messageQuestion = getMessageQuestion update
       let name = getUserName update
@@ -81,6 +81,3 @@ core recent update
       sendAnswer update answer
 
   | otherwise = pure ()
-
-bot :: Recent -> Update -> IO ()
-bot = core

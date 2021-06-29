@@ -68,12 +68,12 @@ spec = do
       Map.lookup 1 recent' `shouldSatisfy` isJust
       Map.lookup 0 recent' `shouldSatisfy` isNothing
 
-  describe "core" $ do
+  describe "bot" $ do
     it "should answer the question" $ do
       let result :: [String] =
             "?!?!"
             & updateFactory Nothing
-            & core Map.empty
+            & bot Map.empty
             & runWriter
             & snd
 
@@ -86,7 +86,7 @@ spec = do
     it "should not answer the message" $ do
       "yup"
       & updateFactory Nothing
-      & core Map.empty
+      & bot Map.empty
       & runWriter
       & snd
       & unlines

@@ -26,9 +26,11 @@ dependencies:
 - aeson
 - lens
 - servant-server
+- servant-checked-exceptions
 - wai
 - warp
 - http-conduit
+- http-types
 - hspec
 
 library:

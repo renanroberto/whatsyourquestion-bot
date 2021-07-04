@@ -45,7 +45,9 @@ library
     , containers
     , hspec
     , http-conduit
+    , http-types
     , lens
+    , servant-checked-exceptions
     , servant-server
     , wai
     , warp
@@ -63,7 +65,9 @@ executable whatsyourquestion-bot-exe
     , containers
     , hspec
     , http-conduit
+    , http-types
     , lens
+    , servant-checked-exceptions
     , servant-server
     , wai
     , warp
@@ -89,7 +93,9 @@ test-suite whatsyourquestion-bot-test
     , containers
     , hspec
     , http-conduit
+    , http-types
     , lens
+    , servant-checked-exceptions
     , servant-server
     , wai
     , warp

@@ -1,19 +1,23 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
+
 module Main where
 
-import           Control.Monad.IO.Class   (liftIO)
-import qualified Data.Map.Strict          as Map
-import           Data.Maybe               (fromMaybe)
+import           Control.Monad.IO.Class     (liftIO)
+import           Data.Aeson                 (ToJSON, toJSON)
+import qualified Data.Map.Strict            as Map
+import           Data.Maybe                 (fromMaybe)
 import           GHC.Conc
-import           Network.Wai.Handler.Warp (run)
+import           Network.HTTP.Types         (status401)
+import           Network.Wai.Handler.Warp   (run)
 import           Servant
-import           System.Environment       (getEnv, lookupEnv)
-import           Text.Read                (readMaybe)
+import           Servant.Checked.Exceptions
+import           System.Environment         (getEnv, lookupEnv)
+import           Text.Read                  (readMaybe)
 
 import           BotCore
-import           TelegramTypes            (Recent, Token, Update)
+import           TelegramTypes              (Recent, Token, Update)
 
 
 getPort :: IO Int
@@ -38,20 +42,29 @@ rootAPI :: Server RootAPI
 rootAPI = pure "ok"
 
 
+data InvalidToken = InvalidToken
+
+instance ToJSON InvalidToken where
+  toJSON _ = toJSON "invalid token"
+
+instance ErrStatus InvalidToken where
+  toErrStatus _ = status401
+
 type BotAPI =
   "bot"
   :> ReqBody '[JSON] Update
   :> Capture "token" Token
-  :> Post '[JSON] NoContent
+  :> Throws InvalidToken
+  :> Post '[JSON] String
 
 protectedBotAPI :: State -> Server BotAPI
 protectedBotAPI state update token = liftIO $ do
   token' <- getToken
   if token == token'
-    then botAPI state update
-    else pure NoContent
+    then botAPI state update *> pureSuccEnvelope ""
+    else pureErrEnvelope InvalidToken
 
-botAPI :: State -> Update -> IO NoContent
+botAPI :: State -> Update -> IO ()
 botAPI state update = do
   recent <- atomically (readTVar state)
   bot recent update
@@ -60,8 +73,6 @@ botAPI state update = do
     recent' <- readTVar state
     let updatedRecent = updateRecent update recent'
     writeTVar state updatedRecent
-
-  pure NoContent
 
 
 type API = RootAPI :<|> BotAPI
